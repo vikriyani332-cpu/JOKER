@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#c9a227">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Score Cekih">
+  <meta name="description" content="Aplikasi scoring kartu premium dengan sistem bakaran otomatis — Sadewa Corp">
+  <title>Score Cekih — Sadewa Corp</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="joker.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="joker.ico">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg-pattern"></div>
+<div class="bg-overlay"></div>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="logo-wrap">
+    <img src="joker.png" alt="Joker Logo" onerror="this.style.fontSize='5rem';this.outerHTML='<div style=\'font-size:5rem;filter:drop-shadow(0 0 20px gold)\'>🃏</div>'">
+  </div>
+  <div>
+    <div class="loading-title">Score Cekih</div>
+    <div class="loading-sub">Sadewa Corp</div>
+  </div>
+  <div class="loading-bar-wrap">
+    <div class="loading-bar" id="loading-bar"></div>
+  </div>
+</div>
+
+<!-- FIRE OVERLAY -->
+<div id="fire-overlay" class="fire-overlay"></div>
+
+<!-- WIN OVERLAY -->
+<div id="win-overlay" class="win-overlay">
+  <div id="star-rain" class="star-rain"></div>
+  <div class="win-content">
+    <div class="win-star">⭐</div>
+    <div class="win-name" id="win-name">Pemain</div>
+    <div class="win-text">Mendapatkan Bintang!</div>
+    <div style="margin-top:1rem;color:var(--text-secondary);font-size:0.85rem;">Ronde selesai...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="app-header" id="app-header">
+    <div class="header-logo">
+      <img src="joker.png" alt="Logo" onerror="this.outerHTML='<span style=\'font-size:1.5rem\'>🃏</span>'">
+      <div>
+        <div class="app-name">Score Cekih</div>
+        <div class="app-corp">Sadewa Corp</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" onclick="toggleLightMode()" title="Toggle Mode">☀️</button>
+      <button class="btn-icon" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+      <button class="btn-icon" onclick="takeScreenshot()" title="Screenshot" id="btn-screenshot" style="display:none">📸</button>
+    </div>
+  </header>
+
+  <!-- ==================== SETUP SCREEN ==================== -->
+  <div class="screen active" id="screen-setup">
+    <div class="setup-card">
+      <div class="setup-logo">
+        <img src="joker.png" alt="Logo" onerror="this.outerHTML='<div style=\'font-size:4rem\'>🃏</div>'">
+      </div>
+      <div class="setup-title">Score Cekih</div>
+      <div class="setup-sub">Sadewa Corp · Game Setup</div>
+
+      <div class="players-grid">
+        <div class="form-group">
+          <label class="form-label">👤 Pemain A</label>
+          <input type="text" class="form-input player-name-input" placeholder="Nama Pemain A" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">👤 Pemain B</label>
+          <input type="text" class="form-input player-name-input" placeholder="Nama Pemain B" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">👤 Pemain C</label>
+          <input type="text" class="form-input player-name-input" placeholder="Nama Pemain C" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">👤 Pemain D</label>
+          <input type="text" class="form-input player-name-input" placeholder="Nama Pemain D" maxlength="20">
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="form-group">
+        <label class="form-label">🎯 Target Kemenangan</label>
+        <select class="form-select" id="target-select">
+          <option value="500">500 Poin</option>
+          <option value="750">750 Poin</option>
+          <option value="1000" selected>1000 Poin (Default)</option>
+          <option value="1500">1500 Poin</option>
+          <option value="custom">Custom...</option>
+        </select>
+        <input type="number" class="form-input" id="target-custom" placeholder="Masukkan target custom..." style="margin-top:0.5rem;display:none;" min="100" max="99999">
+      </div>
+
+      <button class="btn-primary" onclick="startGame()" style="margin-top:1rem;">
+        ▶ MULAI PERMAINAN
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== GAME SCREEN ==================== -->
+  <div class="screen" id="screen-game">
+
+    <!-- Game Info Bar -->
+    <div class="game-header-info">
+      <div class="game-info-chip" id="info-ronde">🎮 Ronde <span>1</span></div>
+      <div class="game-info-chip" id="info-puteran">🔄 Puteran <span>0</span></div>
+      <div class="game-info-chip" id="info-target">🎯 Target: <span>1000</span></div>
+    </div>
+
+    <!-- AI Commentator -->
+    <div class="ai-comment-box">
+      <div class="ai-label">🤖 AI Komentator</div>
+      <div id="ai-comment-text">Siap memulai permainan...</div>
+    </div>
+
+    <!-- Player Cards Grid -->
+    <div class="players-cards-grid" id="players-cards-grid">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- Fire Section -->
+    <div id="fire-section"></div>
+
+    <!-- Input Section -->
+    <div class="input-section">
+      <div class="input-section-title">🎴 Input Skor Puteran</div>
+      <div class="score-inputs-grid" id="score-inputs-grid">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="action-buttons">
+        <button class="btn-primary" onclick="savePuteran()">💾 SIMPAN PUTERAN</button>
+        <button class="btn-secondary" onclick="doUndo()">↩️ UNDO</button>
+        <button class="btn-secondary" onclick="showEditNames()">✏️ EDIT NAMA</button>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="ranking">🏆 Ranking</button>
+      <button class="tab-btn" data-tab="history">📜 History</button>
+      <button class="tab-btn" data-tab="achievement">🎖 Achievement</button>
+      <button class="tab-btn" data-tab="statistik">📊 Statistik</button>
+      <button class="tab-btn" data-tab="arsip">📁 Arsip</button>
+      <button class="tab-btn" data-tab="grafik">📈 Grafik</button>
+    </div>
+
+    <!-- Tab Panels -->
+    <div id="tab-ranking" class="tab-panel active">
+      <div id="tab-ranking-content"></div>
+    </div>
+
+    <div id="tab-history" class="tab-panel">
+      <div id="tab-history-content"></div>
+    </div>
+
+    <div id="tab-achievement" class="tab-panel">
+      <div id="tab-achievement-content"></div>
+    </div>
+
+    <div id="tab-statistik" class="tab-panel">
+      <div id="tab-stats-content"></div>
+    </div>
+
+    <div id="tab-arsip" class="tab-panel">
+      <div id="tab-archive-content"></div>
+    </div>
+
+    <div id="tab-grafik" class="tab-panel">
+      <div style="margin-bottom:0.5rem;">
+        <canvas id="score-chart-canvas" style="width:100%;"></canvas>
+        <div class="chart-legend" id="chart-legend"></div>
+      </div>
+    </div>
+
+    <!-- Reset Button (Fixed Bottom) -->
+    <div class="reset-fixed">
+      <button class="btn-danger" onclick="showResetConfirm()">🗑 RESET GAME</button>
+    </div>
+
+  </div>
+
+  <!-- ==================== ROUND NEW SCREEN ==================== -->
+  <div class="screen" id="screen-round-new">
+    <div id="round-new-content"></div>
+  </div>
+
+</div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Edit Names Modal -->
+<div class="modal-overlay" id="modal-edit-names">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Edit Nama Pemain</div>
+    <div class="edit-names-form" id="edit-names-form"></div>
+    <div class="modal-actions" style="margin-top:1rem;">
+      <button class="btn-secondary" onclick="closeModal('modal-edit-names')">Batal</button>
+      <button class="btn-primary" style="width:auto;flex:1;" onclick="saveEditNames()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Confirm Modal -->
+<div class="modal-overlay" id="modal-reset">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ Reset Permainan</div>
+    <div class="modal-text">Reset seluruh permainan? Skor, ronde, dan puteran aktif akan dihapus. Statistik dan arsip pemain tetap tersimpan.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-reset')">Batal</button>
+      <button class="btn-danger" onclick="doReset()">Ya, Reset</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
